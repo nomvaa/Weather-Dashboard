@@ -21,17 +21,22 @@
 
   <body>
     <!-- Retrieved data will be dumped here -->
-    <div class="city"></div>
-    <div class="wind"></div>
-    <div class="humidity"></div>
+    <div class="city"></div><h4 id="date"></h4>
     <div class="temp"></div>
+    <div class="humidity"></div>
+    <div class="wind"></div>
+    <div class="uvIndex"></div>
+    <div class="5dayForecast"></div>
+    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script type="text/javascript">
-      console.log('js')
+      // console.log('javascript')
         // onclick funtion for submit button
-      //var queryURL = "";
+    
       $("#submit").on("click", function(event) {
-        console.log('clicked');
+        // console.log('clicked');
         // Preventing the submit button from trying to submit the form
         // We're optionally using a form so the user may hit Enter to search instead of clicking the button
         event.preventDefault();
@@ -39,10 +44,22 @@
         // Here we grab the text from the input box
         var cityWeather = $("#city-input").val();
 
-
+        //QueryURL and API link
         var APIKey = "4c51b873bdfb944c8ab8d461c97a219a";
         var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + cityWeather +"&appid=" + APIKey;
+        // var UVIndexURL = "http://api.openweathermap.org/data/2.5/uvi?appid=" + APIKey "&lat=" + lat "&lon=" + lon;
+        var forecastURL = "api.openweathermap.org/data/2.5/forecast?q=" + cityWeather + ",us&mode=xml&appid=" + APIKey;
+
+        //Date 
+        const now = moment().format('MMMM Do YYYY');
+        let $dateHeading = $('#date');
+        $dateHeading.text(now);
         
+        // Forecast VAR
+        const forecasting = document.getElementsByClassName('5dayForecast')[0];
+
+
+        // AJAX 
         $.ajax({
           url: queryURL,
           method: "GET"
@@ -56,11 +73,24 @@
           const humidityEl = $('.humidity');
           const tempEl = $('.temp');
   
-          cityEl.html('<h1>' + response.name + '</h1>');
-  
+          cityEl.html('<h1>' + response.name + ':</h1>');
           windEl.html('Wind Speed: ' + response.wind.speed);
           humidityEl.html('Humidity: ' + response.main.humidity);
           tempEl.html('Temperature(F): ' + tempInF.toFixed(2));
+
+          // 5 Day weather forecast function//
+        //  function getWeatherData() {
+        //    console.log('weather');
+        //    let headers = new headers()
+
+        //    return fetch(forecastURL, {
+        //      method: 'GET',
+        //      headers: headers
+        //    }).then(data => {
+        //      return data.json();
+        //    })
+        //  }     
+        
         });
       });
 
