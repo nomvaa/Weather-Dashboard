@@ -13,54 +13,59 @@
 <nav class="navbar navbar-dark bg-dark">
     <a class="navbar-brand">Weather Dashboard</a>
     <form class="form-inline">
-      <input class="form-control mr-sm-2" type="search" placeholder="Search City" aria-label="Search">
-      <button class="btn btn-outline-info my-2 my-sm-0" type="submit">Weather It!</button>
+      <input id="city-input" class="form-control mr-sm-2" type="search" placeholder="Search City" aria-label="Search">
+      <button id="submit" class="btn btn-outline-info my-2 my-sm-0" type="submit">Weather It!</button>
     </form>
   </nav>
 
 
-<body>
+  <body>
+    <!-- Retrieved data will be dumped here -->
+    <div class="city"></div>
+    <div class="wind"></div>
+    <div class="humidity"></div>
+    <div class="temp"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+      console.log('js')
+        // onclick funtion for submit button
+      //var queryURL = "";
+      $("#submit").on("click", function(event) {
+        console.log('clicked');
+        // Preventing the submit button from trying to submit the form
+        // We're optionally using a form so the user may hit Enter to search instead of clicking the button
+        event.preventDefault();
 
-    
-  <!-- Retrieved data will be dumped here -->
-  <div class="city"></div>
-  <div class="wind"></div>
-  <div class="humidity"></div>
-  <div class="temp"></div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script type="text/javascript">
-    // This is our API key. Add your own API key between the ""
-    var APIKey = "4c51b873bdfb944c8ab8d461c97a219a";
-
-    // Here we are building the URL we need to query the database
-    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=Bujumbura,Burundi&appid=" + APIKey;
-
-    // We then created an AJAX call
-    $.ajax({
-      url: queryURL,
-      method: "GET"
-    }).then(function(response) {
-        console.log(response);
-
-    // calculate temp
-        const tempInF =(response.main.temp - 273.15) * 1.80 + 32;
-
-        //Set index
-        const cityEl = $('.city');
-        const windEl = $('.wind');
-        const humidityEl = $('.humidity');
-        const tempEl = $('.temp');
-
-        cityEl.html('<h2>' + response.name + '</h2>');
-
-        windEl.html('Wind Speed: ' + response.wind.speed);
-        humidityEl.html('Humidity: ' + response.main.humidity);
-        tempEl.html('Temperature(F): ' + tempInF.toFixed(2));
+        // Here we grab the text from the input box
+        var cityWeather = $("#city-input").val();
 
 
-    });
-  </script>
+        var APIKey = "4c51b873bdfb944c8ab8d461c97a219a";
+        var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + cityWeather +"&appid=" + APIKey;
+        
+        $.ajax({
+          url: queryURL,
+          method: "GET"
+        }).then(function(response) {
+          console.log(response);
+      // calculate temp
+          const tempInF =(response.main.temp - 273.15) * 1.80 + 32;
+  
+          const cityEl = $('.city');
+          const windEl = $('.wind');
+          const humidityEl = $('.humidity');
+          const tempEl = $('.temp');
+  
+          cityEl.html('<h1>' + response.name + '</h1>');
+  
+          windEl.html('Wind Speed: ' + response.wind.speed);
+          humidityEl.html('Humidity: ' + response.main.humidity);
+          tempEl.html('Temperature(F): ' + tempInF.toFixed(2));
+        });
+      });
+
+      
+    </script>
 </body>
 
 </html>
-
