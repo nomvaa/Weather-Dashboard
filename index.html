@@ -126,3 +126,49 @@
 
         var forecastURL = "http://api.openweathermap.org/data/2.5/forecast?q=" + cityWeather + ",us&mode=xml&appid=" + APIKey;
         console.log(forecastURL)
+
+
+       //5 day forecast
+        var weekday = ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat'];
+        var d = new Date();
+        function forecast(location) {
+            $.ajax({
+              dataType: 'json',
+              url: forecastURL,
+              data: {
+                q: location,
+                units: 'imperial',
+                appid: APIKey,
+                cnt: '5'
+              }
+            }).done(function(response) {
+              console.log('response2', response);
+              $('.forecast').empty();
+              var dayCounter = d.getDay();
+              for (i = 0; i <= 4; i++) {
+                if (dayCounter >= weekday.length - 1) {
+                  dayCounter = 0
+                } else {
+                  dayCounter += 1
+                }
+        var arr = [];
+                var length = response.list.length;
+        arr[i] = ("<div class='row'><h4 class='col-md-4' id='days'>" + weekday[dayCounter] + "<h4/><h4 class='col-md-4' id='max'>" + Math.round(response.list[i].temp.max) + 'º' + "</h4><h3 class='col-md-4' id='wi'></h3></div>");
+        // min temp above
+                // <h5 id='min'>" + Math.round(response.list[i].temp.min) + 'º' + "</h5>
+        $('.forecast').append(arr.join(' '));
+              }
+            });
+          }
+
+
+
+        }); 
+      });     
+          
+  });  
+
+    </script>
+</body>
+
+</html>
