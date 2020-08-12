@@ -17,9 +17,14 @@
       <button id="submit" class="btn btn-outline-info my-2 my-sm-0" type="submit">Weather It!</button>
     </form>
   </nav>
-
-  <!-- List of Cities searched-->
-  <ul class="" float="right"></ul>
+          
+    <!-- List of Cities searched-->
+    <div id="buttons-view"></div>
+    <div class="list-group float-right">
+      <button type="button" class="list-group-flush float-right">
+      </button>
+    </div>
+  
 
   <body>
     <!-- Retrieved data will be dumped here -->
@@ -30,6 +35,9 @@
     <div class="uvIndex"></div>
 
     <div class="weather_forecast"></div>
+
+
+
     
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -46,8 +54,35 @@
 
         // Here we grab the text from the input box
         var cityWeather = $("#city-input").val();
+        
+        // Generates list of cities searched
+        var cityList = [cityWeather];
+        var ul = document.querySelector("div");
 
-       
+        for (var i = 0; i < cityList.length; i++) {
+          var city = cityList[i];
+
+          var listItem = document.createElement("button");
+          listItem.textContent = city;
+
+          ul.appendChild(listItem);
+        }
+
+        // Local Storage Cities Searched
+        function storeCitySearched(cityWeather) {
+        console.log("city searched");
+        
+        var storeCities = "";
+        if (localStorage.getItem("storecities") !== null) {
+            cityList = localStorage.getItem("citylist");
+            console.log(storeCities);
+            cityList = cityList + `,${name}=${city.toString()}`;
+        } else {
+            highScores = highScores + `${name}=${city.toString()}`;
+        }
+        localStorage.setItem("Cities", highScores);
+        // window.location.href = "highscores.html";
+    }
 
         //QueryURL and API link
         var APIKey = "4c51b873bdfb944c8ab8d461c97a219a";
@@ -95,12 +130,53 @@
           }).then(function (response) {
             console.log(UVIndexURL);
             console.log('UV Index');
-            UVIndexEl.html('UV Index: '+ response.value);
-        
+            UVIndexEl.html('UV Index: '+ response.value); 
         // END OF AJAX CALL //
-          //     }); 
-          // });   
+              }); 
+          }); 
+          
+    
 
+          // function renderButtons() {
+
+          // // Deletes the movies prior to adding new movies
+          // // (this is necessary otherwise you will have repeat buttons)
+          // $("#buttons-view").empty();
+          // // Loops through the array of movies
+          // for (var i = 0; i < cityList.length; i++) {
+
+          //   // Then dynamicaly generates buttons for each movie in the array
+          //   // This code $("<button>") is all jQuery needs to create the beginning and end tag. (<button></button>)
+          //   var a = $("<button>");
+          //   // Adds a class of movie to our button
+          //   a.addClass("city");
+          //   // Added a data-attribute
+          //   a.attr("data-name", cityList[i]);
+          //   // Provided the initial button text
+          //   a.text(cityList[i]);
+          //   // Added the button to the buttons-view div
+          //   $("#buttons-view").append(a);
+          // }
+          // }
+
+          // // This function handles events where the add movie button is clicked
+          // $("#buttons-view").on("click", function(event) {
+          // event.preventDefault();
+          // // This line of code will grab the input from the textbox
+          // var citySearch = $("#city-input").val().trim();
+
+          // // The movie from the textbox is then added to our array
+          // cityWeather.push(citySearch);
+
+          // // Calling renderButtons which handles the processing of our movie array
+          // renderButtons();
+          // });
+
+          // // Adding click event listeners to all elements with a class of "movie"
+          // $(document).on("click", ".city", displayMovieInfo);
+
+          // // Calling the renderButtons function to display the initial buttons
+          // renderButtons();
 
         
         // //[forecast0, forecast1, ..., forecast4 ]
@@ -159,14 +235,12 @@
         $('.forecast').append(arr.join(' '));
               }
             });
-          }
+      }
 
-
-
+      
+        
         }); 
-      });     
-          
-  });  
+    
 
     </script>
 </body>
