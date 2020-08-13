@@ -114,7 +114,7 @@
           const UVIndexEl = $(".uvIndex");
           const iconEl = $("#condition-icon");
 
-          const conditionsIcon = `http://openweathermap.org/img/wn/${response.weather[0].icon}@2x.png`;
+          const conditionsIcon = `https://openweathermap.org/img/wn/${response.weather[0].icon}@2x.png`;
 
           cityEl.html("<h1>" + response.name + ":</h1>");
           iconEl.html(`<img src="${conditionsIcon}">`);
@@ -126,7 +126,7 @@
           const lat = response.coord.lat;
           const lon = response.coord.lon;
           // console.log(lat, lon);
-          var UVIndexURL = `http://api.openweathermap.org/data/2.5/uvi?appid=${APIKey}&lat=${lat}&lon=${lon}`;
+          var UVIndexURL = `https://api.openweathermap.org/data/2.5/uvi?appid=${APIKey}&lat=${lat}&lon=${lon}`;
           $.ajax({
             url: UVIndexURL,
             method: "GET",
@@ -173,7 +173,7 @@
             var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
             d.setUTCSeconds(parseInt(day.dt));
             const dayOfWeek = d.getDay();
-            const conditionsIcon = `http://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`;
+            const conditionsIcon = `https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`;
             const dayWeather = `<div class='row'><h4 class='col-md-4'>
                 <h4 class='col-md-4'>${weekday[dayOfWeek]}
                 <img src='${conditionsIcon}'/>
