@@ -44,6 +44,7 @@
     <!-- Retrieved data will be dumped here -->
     <div class="city"></div>
     <h4 id="date"></h4>
+    <div id="condition-icon"></div>
     <div class="temp"></div>
     <div class="humidity"></div>
     <div class="wind"></div>
@@ -55,38 +56,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script type="text/javascript">
-      // console.log('javascript')
-      // onclick funtion for submit button
-
-      // Local Storage Cities Searched
-      // function storeCitySearched(city) {
-      //   console.log("city searched");
-
-      //   var storeCities = "";
-      //   if (localStorage.getItem("storecities") !== null) {
-      //     cityList = localStorage.getItem("citylist");
-      //     console.log(storeCities);
-      //     cityList = cityList + `,${name}=${city.toString()}`;
-      //   } else {
-      //     highScores = highScores + `${name}=${city.toString()}`;
-      //   }
-      //   localStorage.setItem("Cities", highScores);
-      //   // window.location.href = "highscores.html";
-      // }
-
       const APIKey = "4c51b873bdfb944c8ab8d461c97a219a";
+
+      // Store last searched to localstorage
+      function storeCitySearched(city) {
+        console.log("city searched");
+        localStorage.setItem("lastSearchCity", city);
+      }
+
+      function getLastSearchedCity() {
+        return localStorage.getItem("lastSearchCity");
+      }
 
       // Makes weather request with city and displays it
       function getWeather(city) {
         //QueryURL and API link
 
-        var queryURL =
-          "https://api.openweathermap.org/data/2.5/weather?q=" +
-          city +
-          "&appid=" +
-          APIKey;
+        var queryURL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${APIKey}`;
 
-        console.log(queryURL);
+        // store city
+        storeCitySearched(city);
 
         //Date
         const now = moment().format("MMMM Do YYYY");
@@ -99,107 +88,109 @@
           numRequest: 2,
           method: "GET",
         }).then(function (response) {
-          console.log(response);
+          // console.log("ICON==== ", response);
 
           // calculate temp
-          const tempInF = (response.main.temp - 273.15) * 1.8 + 32;
+          // const tempInF = (response.main.temp - 273.15) * 1.8 + 32;
+          const uvIndexColor = [
+            "GREEN",
+            "GREEN",
+            "GREEN",
+            "YELLOW",
+            "YELLOW",
+            "YELLOW",
+            "ORANGE",
+            "ORANGE",
+            "RED",
+            "RED",
+            "RED",
+            "VIOLET",
+          ];
 
           const cityEl = $(".city");
           const windEl = $(".wind");
           const humidityEl = $(".humidity");
           const tempEl = $(".temp");
           const UVIndexEl = $(".uvIndex");
+          const iconEl = $("#condition-icon");
+
+          const conditionsIcon = `http://openweathermap.org/img/wn/${response.weather[0].icon}@2x.png`;
 
           cityEl.html("<h1>" + response.name + ":</h1>");
+          iconEl.html(`<img src="${conditionsIcon}">`);
           windEl.html("Wind Speed: " + response.wind.speed);
           humidityEl.html("Humidity: " + response.main.humidity);
-          tempEl.html("Temperature(F): " + tempInF.toFixed(2));
+          tempEl.html("Temperature(F): " + Math.round(response.main.temp));
 
           // UV Index//
-          var lat = response.coord.lat;
-          var lon = response.coord.lon;
-          var UVIndexURL =
-            "http://api.openweathermap.org/data/2.5/uvi?appid=" +
-            APIKey +
-            "&lat=" +
-            lat +
-            "&lon=" +
-            lon;
+          const lat = response.coord.lat;
+          const lon = response.coord.lon;
+          // console.log(lat, lon);
+          var UVIndexURL = `http://api.openweathermap.org/data/2.5/uvi?appid=${APIKey}&lat=${lat}&lon=${lon}`;
           $.ajax({
             url: UVIndexURL,
             method: "GET",
           }).then(function (response) {
             console.log(UVIndexURL);
             console.log("UV Index");
-            UVIndexEl.html("UV Index: " + response.value);
+            UVIndexEl.html(
+              `UV Index: <span style='background-color:${
+                response.value < 11
+                  ? uvIndexColor[Math.floor(response.value)]
+                  : uvIndexColor[11]
+              }'>${response.value}</span>`
+            );
             // END OF AJAX CALL //
           });
+
+          // 5 day weather call
+          getFiveDayWeather(lat, lon);
         });
       }
 
-      function getFiveDayWeather(city) {
+      function getFiveDayWeather(lat, lon) {
         // 5 Day weather forecast function//
 
-        var forecastURL =
-          "http://api.openweathermap.org/data/2.5/forecast?q=" +
-          city +
-          ",us&units=imperial&mode=json&appid=" +
-          APIKey;
+        var forecastURL = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=current,minutely,hourly&units=imperial&mode=json&appid=${APIKey}`;
         console.log(forecastURL);
 
         //5 day forecast
+
         var weekday = ["Sun", "Mon", "Tues", "Wed", "Thur", "Fri", "Sat"];
         var d = new Date();
         $.ajax({
           url: forecastURL,
         }).then(function (response) {
-          console.log("response2", response);
+          // console.log(response);
+          const currentDayOfWeek = new Date().getDay();
 
-          const fiveDayWeatherList = response.list;
-          let day = d.getDay();
+          // remove first day which is current day and last day
+          const days = response.daily.slice(1, -2);
+
           $("#five-day-forecast").empty();
-          fiveDayWeatherList.forEach((threeHourWeather) => {
-            if (threeHourWeather.dt_txt.match(/12:00:00$/)) {
-              day++;
-              if (day >= weekday.length) {
-                day = 0;
-              }
-              console.log(day, d.getDay());
-              const dayWeather =
-                "<div class='row'><h4 class='col-md-4'>" +
-                "<h4 class='col-md-4'>" +
-                weekday[day] +
-                "<br>Max temp: " +
-                Math.round(threeHourWeather.main.temp_max) +
-                "º" +
-                "<br>Min temp: " +
-                Math.round(threeHourWeather.main.temp_min) +
-                "º" +
-                "</h4><h3 class='col-md-4' id='wi'></h3></div>";
-              $("#five-day-forecast").append(dayWeather);
-            }
+
+          days.forEach((day) => {
+            var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
+            d.setUTCSeconds(parseInt(day.dt));
+            const dayOfWeek = d.getDay();
+            const conditionsIcon = `http://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`;
+            const dayWeather = `<div class='row'><h4 class='col-md-4'>
+                <h4 class='col-md-4'>${weekday[dayOfWeek]}
+                <img src='${conditionsIcon}'/>
+                <br>
+                Temp: ${Math.round(day.temp.day)}ºF
+                <br>
+                Humidity: ${day.humidity}
+                </h4></div>`;
+
+            $("#five-day-forecast").append(dayWeather);
           });
 
-          // var dayCounter = d.getDay();
-          // for (let i = 0; i <= 4; i++) {
-          //   if (dayCounter >= weekday.length - 1) {
-          //     dayCounter = 0;
-          //   } else {
-          //     dayCounter += 1;
-          //   }
-          //   var arr = [];
-          //   var length = response.list.length;
-          //   arr[i] =
-          //     "<div class='row'><h4 class='col-md-4' id='days'>" +
-          //     weekday[dayCounter] +
-          //     "<h4 class='col-md-4' id='max'>" +
-          //     Math.round(response.list[i].temp.max) +
-          //     "º" +
-          //     "</h4><h3 class='col-md-4' id='wi'></h3></div>";
-          //   // min temp above
-          //   // <h5 id='min'>" + Math.round(response.list[i].temp.min) + 'º' + "</h5>
-          //   $(".forecast").append(arr.join(" "));
         });
+
+      }
+      if (getLastSearchedCity()) {
+        getWeather(getLastSearchedCity());
       }
 
       // Search button listener
@@ -223,78 +214,12 @@
         listItem.textContent = cityWeather;
         listItem.onclick = function () {
           getWeather(listItem.textContent);
-          getFiveDayWeather(listItem.textContent);
         };
 
         ul.appendChild(listItem);
 
         getWeather(cityWeather);
 
-        getFiveDayWeather(cityWeather);
-        // }
-
-        // storeCitySearched();
-
-        // Forecast VAR
-        // const forecasting = document.getElementsByClassName('5dayForecast')[0];
-
-        // function renderButtons() {
-
-        // // Deletes the movies prior to adding new movies
-        // // (this is necessary otherwise you will have repeat buttons)
-        // $("#buttons-view").empty();
-        // // Loops through the array of movies
-        // for (var i = 0; i < cityList.length; i++) {
-
-        //   // Then dynamicaly generates buttons for each movie in the array
-        //   // This code $("<button>") is all jQuery needs to create the beginning and end tag. (<button></button>)
-        //   var a = $("<button>");
-        //   // Adds a class of movie to our button
-        //   a.addClass("city");
-        //   // Added a data-attribute
-        //   a.attr("data-name", cityList[i]);
-        //   // Provided the initial button text
-        //   a.text(cityList[i]);
-        //   // Added the button to the buttons-view div
-        //   $("#buttons-view").append(a);
-        // }
-        // }
-
-        // // This function handles events where the add movie button is clicked
-        // $("#buttons-view").on("click", function(event) {
-        // event.preventDefault();
-        // // This line of code will grab the input from the textbox
-        // var citySearch = $("#city-input").val().trim();
-
-        // // The movie from the textbox is then added to our array
-        // cityWeather.push(citySearch);
-
-        // // Calling renderButtons which handles the processing of our movie array
-        // renderButtons();
-        // });
-
-        // // Adding click event listeners to all elements with a class of "movie"
-        // $(document).on("click", ".city", displayMovieInfo);
-
-        // // Calling the renderButtons function to display the initial buttons
-        // renderButtons();
-
-        // //[forecast0, forecast1, ..., forecast4 ]
-
-        // const forecast = [];
-        // for(var i = 0; i<forecast.length; i++) {
-
-        //   if(time.forecast.match(/12:00:00$/)) {
-        //     document.getElementById(`forecast` + i).value = forecast[0].weather;
-        //     //grab your forecast for the day
-        //   }
-        // }
-
-        // // forecast.forEach(time => {
-        // //   if(time.forecast.match(/12:00:00$/)) {
-        // //     //grab your forecast for the day
-        // //   }
-        // // });
       });
     </script>
   </body>
