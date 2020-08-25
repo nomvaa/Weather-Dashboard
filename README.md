@@ -1,6 +1,6 @@
 <B>Server-Side APIs: Weather Dashboard</b><br>
-Developers are often tasked with retrieving data from another application's API and using it in the context of their own. Third-party APIs allow developers to access their data and functionality by making requests with specific parameters to a URL. Your challenge is to build a weather dashboard that will run in the browser and feature dynamically updated HTML and CSS.
-Use the OpenWeather API to retrieve weather data for cities. The documentation includes a section called "How to start" that will provide basic setup and usage instructions. Use localStorage to store any persistent data.
+This application retrieves data from the Openweather API for cities that user inputs. This weather dashboard runs in the browser and feature dynamically updated HTML and CSS using local storage to store persistent data. 
+
 <BR><BR>
   <B>User Story</b><br>
 AS A traveler<br>
@@ -21,3 +21,6 @@ WHEN I click on a city in the search history<BR>
 THEN I am again presented with current and future conditions for that city<Br>
 WHEN I open the weather dashboard<br>
 THEN I am presented with the last searched city forecast<br>
+
+<h1>Link</h1><br>
+https://nomvaa.github.io/Weather-Dashboard/
